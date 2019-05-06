@@ -1,6 +1,20 @@
-<?php
-
+<?php 
+session_start();
 date_default_timezone_set('Asia/Taipei');
+
+include __DIR__.'/server/connect.php';
+/*
+$sql="SELECT * FROM `user` WHERE `guid`=:GUID ";
+$st=$DBC->prepare($sql);
+$st->execute(array(
+	'GUID'=>$_SESSION['User.GUID'],
+));
+$UserData=$st->fetchAll(PDO::FETCH_ASSOC);
+
+if(count($UserData)>0)
+{
+	$UserData=$UserData[0];
+}*/
 
 ?>
 <!DOCTYPE html>
@@ -12,7 +26,7 @@ date_default_timezone_set('Asia/Taipei');
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/master.css">
     <link rel="stylesheet" href="css/home.css">
-    <title>Document</title>
+    <title>傳聲筒</title>
     <script src="js/jquery-2.2.4.min.js"></script>
 	<script src="js/moment.js"></script>
 	<script src="js/MegaChat.js"></script>
@@ -20,12 +34,12 @@ date_default_timezone_set('Asia/Taipei');
 <body>
 
 	<!-- 開啟通知提醒 -->
-	<div class="plzOpenNotification">
+	<!-- <div class="plzOpenNotification">
 		<div class="shadow"></div>
 		<div class="text">
 			<span>請開啟通知</span>
 		</div>
-	</div>
+	</div> -->
 
 	<!-- 登入 -->
 	<div class="loginWrap dialog">
@@ -34,8 +48,8 @@ date_default_timezone_set('Asia/Taipei');
 				<img src="images/logo.png" alt="">
 			</div>
 			<form action="">
-				<input class="room" type="text" placeholder="房間號碼">
-				<input class="name" type="text" placeholder="暱稱">
+				<input class="room" type="text" placeholder="房間號碼" value="<?php echo htmlspecialchars($UserData['room']);?>">
+				<input class="name" type="text" placeholder="暱稱" value="<?php echo htmlspecialchars($UserData['name']);?>">
 				<input type="submit" class="btn" value="建立 / 進入">
 			</form>
 		</div>
@@ -87,7 +101,7 @@ date_default_timezone_set('Asia/Taipei');
                 <div class="outer">
 					<div class="inner">
 						<div class="inner2">
-							<div class="message system">
+							<!-- <div class="message system">
 								<div class="text"><div class="body">王小名 加入房間</div></div>
 								<div class="time">04:56</div>
 							</div>
@@ -110,7 +124,7 @@ date_default_timezone_set('Asia/Taipei');
 							<div class="message">
 								<div class="text"><div class="body">測試看看3</div></div>
 								<div class="time">04:56</div>
-							</div>
+							</div> -->
 						</div>
 					</div>
                 </div>
@@ -130,6 +144,8 @@ date_default_timezone_set('Asia/Taipei');
 var Chat;
 var LastNotifyID;
 var CanNotify=false;		//是否可以通知使用者
+var CanTitleNotify=false;		//是否可以標題閃爍通知使用者
+var UnReadMessageCount=0;		//未讀訊息
 
 // request permission on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -144,6 +160,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function Notify(Message, CloseTime) {
+
+	UnReadMessageCount++;
+
 	if (Notification.permission !== "granted")
 	{
 		RequestNotificationPermission();
@@ -172,9 +191,48 @@ function Notify(Message, CloseTime) {
 
 }
 
+var TitleNotifySetTimer;
+var TitleNotifyShake=false;
+function TitleNotify()
+{
+	clearTimeout(TitleNotifySetTimer);
+
+	if(UnReadMessageCount>0)
+	{
+		TitleNotifySetTimer=setTimeout(function(){
+			
+			TitleNotifyShake=!TitleNotifyShake;
+			TitleNotify();
+
+		}, 1000);
+
+		if(CanTitleNotify && TitleNotifyShake)
+		{
+			document.title=UnReadMessageCount+' 則新訊息 - 傳聲筒';
+		}
+		else
+		{
+			TitleNotifyReset();
+		}
+	}
+	else
+	{
+		TitleNotifyReset();
+	}
+	
+}
+function TitleNotifyReset()
+{
+	document.title='傳聲筒';
+}
 
 function RequestNotificationPermission()
 {
+	Notification.requestPermission(function(state){
+		
+	});
+
+	/*
 	$('.plzOpenNotification').show();
 	$('.loginWrap').addClass('blur');
 	Notification.requestPermission(function(state){
@@ -187,7 +245,7 @@ function RequestNotificationPermission()
 		{
 			$('.plzOpenNotification .shadow').hide();
 		}
-	});
+	});*/
 }
 
 
@@ -209,9 +267,13 @@ $(function(){
 
 	$(window).on('focus',function(){
 		CanNotify=false;
+		CanTitleNotify=false;
+		UnReadMessageCount=0;
+		TitleNotifyReset();
 	});
 	$(window).on('blur',function(){
 		CanNotify=true;
+		CanTitleNotify=true;
 	});
 	
 

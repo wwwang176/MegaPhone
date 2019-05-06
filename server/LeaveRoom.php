@@ -1,10 +1,12 @@
 <?php 
+session_start();
 
 include __DIR__.'/connect.php';
 
 $LastTime=microtime(true);
 
-$UserGUID=trim($_POST['guid']);
+// $UserGUID=trim($_POST['guid']);
+$UserGUID=$_SESSION['User.GUID'];
 $RoomID=trim($_POST['room']);
 
 

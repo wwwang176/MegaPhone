@@ -15,6 +15,9 @@
 // @ob_end_clean();
 
 header("X-Accel-Buffering: no");
+session_start();
+
+echo $_SESSION['User.GUID'];
 
 // ob_start();
 

@@ -1,18 +1,22 @@
 <?php 
+session_start();
 
 include __DIR__.'/connect.php';
 
 $LastTime=microtime(true);
 
 
-$UserName=trim($_POST['name']);
-$RoomID=trim($_POST['room']);
+$UserName=trim(htmlspecialchars($_POST['name']));
+$RoomID=trim(htmlspecialchars($_POST['room']));
+$_SESSION['User.RoomID']=$RoomID;
 $UserGUID='';
 
 //建立使用者不重複GUID
 while(true)
 {
     $UserGUID=MakeGUID();
+    $_SESSION['User.GUID']=$UserGUID;
+
     $sql="SELECT `guid` FROM `user` WHERE `guid`=:GUID ";
     $st=$DBC->prepare($sql);
     $st->execute(array(

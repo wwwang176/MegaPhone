@@ -40,8 +40,6 @@ function MegaChat(NewConfig)
         },
         success: function (data) {
 
-            ThisChat.PollingStart();
-
             var ReturnData = JSON.parse(data);
             Config.UserGUID = ReturnData.guid; 
 
@@ -55,6 +53,8 @@ function MegaChat(NewConfig)
                     ReturnData.existmember[i].name,
                 );
             }
+
+            ThisChat.PollingStart();
         }
     });
 
@@ -68,7 +68,7 @@ function MegaChat(NewConfig)
             cache: false,
             dataType: 'text',
             data: {
-                'guid': Config.UserGUID,
+                // 'guid': Config.UserGUID,
                 'room': Config.RoomID,
             },
             success: function (data) {
@@ -80,9 +80,10 @@ function MegaChat(NewConfig)
     
     this.PollingStart = function()
     {
-        ChatXHR.open('GET', Config.ChatUrl+'?&room='+Config.RoomID+'&threshold='+XHRLastTimeThreshold, true);
+        ChatXHR.open('GET', Config.ChatUrl + '?&user=' + Config.UserGUID + '&room=' + Config.RoomID +'&threshold='+XHRLastTimeThreshold, true);
         ChatXHR.send(null);
         console.log('PollingStart');
+        console.log('?&user=' + Config.UserGUID + '&room=' + Config.RoomID + '&threshold=' + XHRLastTimeThreshold);
     }
 
     function XHRChange()
@@ -104,7 +105,7 @@ function MegaChat(NewConfig)
                 //解析物件
                 var NewMessageData = JSON.parse(newText);
                 if (NewMessageData.data.length == 0) return;
-                console.log(NewMessageData);
+                // console.log(NewMessageData);
 
 
                 //紀錄最後時間
@@ -154,6 +155,7 @@ function MegaChat(NewConfig)
                         );
                         $('.messageArea .inner2').append(messageDiv);
                         Notify(MemberInfor.name + ' 加入房間', 3000);
+                        TitleNotify();
                     }
 
                     //離開訊息
@@ -175,6 +177,15 @@ function MegaChat(NewConfig)
                         );
                         $('.messageArea .inner2').append(messageDiv);
                         Notify(MemberInfor.name + ' 離開房間', 3000);
+                        TitleNotify();
+                    }
+
+                    else if (NewMessageData.data[i].system == 3)
+                    {
+                        // console.log(NewMessageData.data[i]);
+                        ChatXHR.abort();
+                        // console.log('!!!!!!!!');
+                        location.reload(); 
                     }
 
                     else
@@ -199,6 +210,7 @@ function MegaChat(NewConfig)
                         else
                         {
                             Notify();
+                            TitleNotify();
                         }
                     }
 
@@ -224,6 +236,15 @@ function MegaChat(NewConfig)
             if (ChatXHR.readyState == XMLHttpRequest.DONE && ChatXHR.status === 200) {
                 //console.log('response',ChatXHR.response);
                 console.log('DONE');
+
+                //重新輪巡
+                ThisChat.PollingStart();
+            }
+
+            //當ChatXHR發生錯誤
+            else if (ChatXHR.readyState == XMLHttpRequest.DONE)
+            {
+                console.log('ERROR ' + ChatXHR.status);
 
                 //重新輪巡
                 ThisChat.PollingStart();
@@ -254,6 +275,8 @@ function MegaChat(NewConfig)
         SendGUID.push(GUID);
         messageDiv.addClass('message-guid-' + GUID);
 
+        ChatXHR.abort();
+
         //送出訊息
         $.ajax({
             method: 'post',
@@ -268,7 +291,6 @@ function MegaChat(NewConfig)
             success: function (data) {
                 
                 //重新輪巡
-                ChatXHR.abort();
                 // SendGUID=[];
                 ReceiveGUID = [];
                 ThisChat.PollingStart();
