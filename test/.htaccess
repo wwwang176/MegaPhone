@@ -1,0 +1,13 @@
+#PHP_FLAG output_buffering off
+#php_value output_buffering 0
+
+#SetEnv no-gzip 1
+
+
+#SetEnvIfNoCase Request_URI "\.php$" no-gzip dont-vary
+
+
+#SetOutputFilter DEFLATE
+#SetEnvIfNoCase Request_URI \.php$ no-gzip dont-vary
+
+#RewriteRule ^(.*)$ $1 [NS,E=no-gzip:1,E=dont-vary:1]

@@ -1,0 +1,35 @@
+@mixin pb()
+{
+	@media (max-width: 1200px)
+	{
+		@content;
+	}
+}
+@mixin tb()
+{
+	@media (max-width: 1160px)
+	{
+		@content;
+	}
+}
+@mixin mb()
+{
+	@media (max-width: 768px)
+	{
+		@content;
+	}
+}
+@mixin sb()
+{
+	@media (max-width: 540px)
+	{
+		@content;
+	}
+}
+@mixin rwd($Size)
+{
+	@media (max-width: $Size)
+	{
+		@content;
+	}
+}

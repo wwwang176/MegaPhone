@@ -1,0 +1,130 @@
+@import url(https://fonts.googleapis.com/css?family=Caveat|Noto+Sans+TC:300,500&amp;subset=chinese-traditional);
+::-moz-selection {
+  background: #ffe13d; }
+::selection {
+  background: #ffe13d; }
+
+::-moz-selection {
+  background: #ffe13d; }
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  font-family: 'Noto Sans TC','Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 170%;
+  letter-spacing: 1px;
+  color: #EFEFEF;
+  background-color: #222; }
+
+a {
+  color: inherit;
+  text-decoration: none; }
+
+p {
+  line-height: 140%;
+  margin-bottom: 30px; }
+
+h1, h2, h3, h4, h5 {
+  position: relative;
+  margin-bottom: 15px;
+  line-height: 160%;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  letter-spacing: 2px; }
+
+h1 {
+  font-size: 32px;
+  font-weight: 500; }
+
+h2 {
+  font-size: 29px;
+  font-weight: 500; }
+
+h3 {
+  font-size: 20px;
+  font-weight: 500; }
+
+h4 {
+  font-size: 19px;
+  font-weight: 500; }
+
+h5 {
+  font-size: 17px;
+  font-weight: 500; }
+
+.clearfix:before, .clearfix:after {
+  content: " ";
+  display: table; }
+
+.clearfix:after {
+  clear: both; }
+
+.no-scroll {
+  overflow: hidden; }
+
+.container {
+  width: 1160px;
+  margin: 0 auto; }
+  .container:before, .container:after {
+    content: " ";
+    display: table; }
+  .container:after {
+    clear: both; }
+  @media (max-width: 1200px) {
+    .container {
+      width: 100%; } }
+
+strong {
+  font-weight: 500; }
+
+.btn {
+  text-align: center;
+  padding: 10px 20px;
+  background-color: #004b7a;
+  border-radius: 5px;
+  cursor: pointer; }
+
+.blur {
+  -webkit-filter: blur(10px);
+  filter: blur(10px); }
+
+.plzOpenNotification {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(63, 63, 63, 0.8); }
+  .plzOpenNotification .shadow {
+    position: absolute;
+    z-index: 1;
+    left: 115px;
+    width: 315px;
+    height: 125px;
+    -webkit-box-shadow: 0 0 50px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 50px 20px rgba(0, 0, 0, 0.5); }
+  .plzOpenNotification .text {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 60px;
+    line-height: 1.2; }
