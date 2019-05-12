@@ -30,6 +30,7 @@ if(count($UserData)>0)
     <script src="js/jquery-2.2.4.min.js"></script>
 	<script src="js/moment.js"></script>
 	<script src="js/MegaChat.js"></script>
+	<script src="js/Autolinker.min.js"></script>
 </head>
 <body>
 
@@ -97,6 +98,9 @@ if(count($UserData)>0)
 			</div>
 		</div>
         <div class="chatArea">
+			<div class="systemStateArea re-connect">
+				重新連線中
+			</div>
             <div class="messageArea">
                 <div class="outer">
 					<div class="inner">

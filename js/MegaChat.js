@@ -15,7 +15,7 @@ function MegaChat(NewConfig)
 
     var ThisChat=this;
     var messageDisplayBox;      //訊息顯示位置
-    var ChatXHR;                //XHR
+    var ChatXHR=null;           //XHR
     var XHRLastText = '';	    //上次接收的訊息
     var XHRLastTimeThreshold = Config.TimeThreshold;   //上次接收到的訊息中 最後時間
     var SendGUID = [];          //發送紀錄
@@ -61,6 +61,9 @@ function MegaChat(NewConfig)
 
     //離開房間
     this.LeaveRoom=function(){
+
+        ChatXHR.abort();
+
         $.ajax({
             async: false,
             method: 'post',
@@ -77,9 +80,10 @@ function MegaChat(NewConfig)
         });
     };
 
-    
     this.PollingStart = function()
     {
+        ChatXHR.abort();
+        
         ChatXHR.open('GET', Config.ChatUrl + '?&user=' + Config.UserGUID + '&room=' + Config.RoomID +'&threshold='+XHRLastTimeThreshold, true);
         ChatXHR.send(null);
         console.log('PollingStart');
@@ -88,8 +92,21 @@ function MegaChat(NewConfig)
 
     function XHRChange()
     {
-        if (ChatXHR.status == 200)
+        //state 500~600
+        if (ChatXHR.status >= 500 && ChatXHR.status < 600)
         {
+            console.log('ERROR ' + ChatXHR.status);
+
+            $('.systemStateArea.re-connect').addClass('active');
+
+            //重新輪巡
+            ThisChat.PollingStart();
+        }
+
+        else if (ChatXHR.status == 200)
+        {  
+            $('.systemStateArea.re-connect').removeClass('active');
+
             if (ChatXHR.readyState == XMLHttpRequest.LOADING)
             {
                 // console.log('response',ChatXHR.response);
@@ -193,7 +210,9 @@ function MegaChat(NewConfig)
                         //新增至畫面
                         var messageDiv = PutMessageOnChat(
                             Config.UserName, 
-                            NewMessageData.data[i].message, 
+                            Autolinker.link(NewMessageData.data[i].message,{
+                                stripPrefix:false,
+                            }), 
                             NewMessageData.data[i].time, 
                             false, 
                             0
@@ -233,18 +252,9 @@ function MegaChat(NewConfig)
             }
 
             //當ChatXHR結束
-            if (ChatXHR.readyState == XMLHttpRequest.DONE && ChatXHR.status === 200) {
+            else if (ChatXHR.readyState == XMLHttpRequest.DONE) {
                 //console.log('response',ChatXHR.response);
                 console.log('DONE');
-
-                //重新輪巡
-                ThisChat.PollingStart();
-            }
-
-            //當ChatXHR發生錯誤
-            else if (ChatXHR.readyState == XMLHttpRequest.DONE)
-            {
-                console.log('ERROR ' + ChatXHR.status);
 
                 //重新輪巡
                 ThisChat.PollingStart();
@@ -290,6 +300,9 @@ function MegaChat(NewConfig)
             },
             success: function (data) {
                 
+            },
+            complete: function (jqXHR, textStatus) {
+
                 //重新輪巡
                 // SendGUID=[];
                 ReceiveGUID = [];

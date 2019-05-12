@@ -220,9 +220,31 @@
 
     .chatArea
     {
+        position: relative;
         flex: 1 1 100%;
         display: flex;
         flex-direction: column;
+
+        .systemStateArea
+        {
+            position: absolute;
+            z-index: 5;
+            text-align: center;
+            padding: 5px 0;
+            width: 100%;
+            transform: translateY(-100%);
+            transition: all .5s;
+
+            &.active
+            {
+                transform: translateY(0%);;
+            }
+            
+            &.re-connect
+            {
+                background-color: rgba(152, 152, 12, 0.72);
+            }
+        }
 
         .messageArea
         {
@@ -318,6 +340,11 @@
                     padding: 10px;
                     background-color: $MainColor;
                     border-radius: 10px;
+
+                    a
+                    {
+                        text-decoration: underline;
+                    }
                 }
             }
             .time
@@ -408,6 +435,7 @@
                 color: $FontColor;
                 background-color: darken($MainColor, 20%);
                 border-radius: 5px 0 0 5px;
+                outline: none;
             }
             .send
             {
