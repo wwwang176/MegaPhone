@@ -34,6 +34,8 @@ if(count($UserData)>0)
 </head>
 <body>
 
+	<div class="safeMask" style="display:none;"></div>
+
 	<!-- 開啟通知提醒 -->
 	<!-- <div class="plzOpenNotification">
 		<div class="shadow"></div>
@@ -145,7 +147,7 @@ if(count($UserData)>0)
 <script>
 
 	
-var Chat;
+var Chat=null;
 var LastNotifyID;
 var CanNotify=false;		//是否可以通知使用者
 var CanTitleNotify=false;		//是否可以標題閃爍通知使用者
@@ -261,7 +263,16 @@ function SendMessageCallBack()
 
 $(function(){
 
+	$(window).on('keydown click',function(e){
+
+		$('.safeMask').hide();
+
+		if(Chat!=null)
+			$('.sendArea input.text').focus();
+	});
+
 	$('.sendArea input.text').on('keydown',function(e){
+
 		if (e.keyCode == 13)
 		{
 			var Text = $.trim($(this).val());
@@ -278,6 +289,7 @@ $(function(){
 	$(window).on('blur',function(){
 		CanNotify=true;
 		CanTitleNotify=true;
+		$('.safeMask').show();
 	});
 	
 
