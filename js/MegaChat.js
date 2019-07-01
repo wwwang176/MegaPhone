@@ -7,7 +7,7 @@ function MegaChat(NewConfig)
         UserGUID: '',                   //使用者識別碼
         RoomID: '',                     //房號
         ChatUrl:'',                     //系統位置
-        SystemDisplayMessageMax: 20,    //畫面上最多顯示幾則訊息
+        SystemDisplayMessageMax: 100,    //畫面上最多顯示幾則訊息
         TimeThreshold: 0,
         SendMessageCallBack: undefined
     };  
@@ -58,6 +58,56 @@ function MegaChat(NewConfig)
         }
     });
 
+    //綁定上傳
+    window.addEventListener("paste", function (e) {
+        // Handle the event
+        retrieveImageFromClipboardAsBase64(e, function (imageDataBase64) {
+
+            if (imageDataBase64) {
+                // data:image/png;base64,iVBORw0KGgoAAAAN......
+
+                //製造一個假訊息
+                var messageDiv = PutImageOnChat(
+                    Config.UserName,
+                    imageDataBase64,
+                    Math.floor(new Date().getTime() / 1000),
+                    true,
+                    0
+                );
+                messageDiv.addClass('right');
+                
+                var GUID = MakeGUID();
+                SendGUID.push(GUID);
+                messageDiv.addClass('message-guid-' + GUID);
+
+                ChatXHR.abort();
+
+                $.ajax({
+                    url: "server/upload_base64.php",
+                    type: 'POST',
+                    data: {
+                        'guid': GUID,
+                        room: Config.RoomID,
+                        imgBase64: imageDataBase64,
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    error: function () {
+                        console.log('upload error');
+                    },
+                    complete: function (jqXHR, textStatus) {
+
+                        //重新輪巡
+                        // SendGUID=[];
+                        ReceiveGUID = [];
+                        ThisChat.PollingStart();
+                    }
+                });
+            }
+        });
+    }, false);
 
     //離開房間
     this.LeaveRoom=function(){
@@ -197,6 +247,7 @@ function MegaChat(NewConfig)
                         TitleNotify();
                     }
 
+                    //你已經被剔除
                     else if (NewMessageData.data[i].system == 3)
                     {
                         // console.log(NewMessageData.data[i]);
@@ -205,19 +256,37 @@ function MegaChat(NewConfig)
                         location.reload(); 
                     }
 
+                    //正常訊息
                     else
                     {
-                        //新增至畫面
-                        var messageDiv = PutMessageOnChat(
-                            Config.UserName, 
-                            Autolinker.link(NewMessageData.data[i].message,{
-                                stripPrefix:false,
-                            }), 
-                            NewMessageData.data[i].time, 
-                            false, 
-                            0
-                        );
-                        $('.messageArea .inner2').append(messageDiv);
+
+                        if (NewMessageData.data[i].type==1)
+                        {
+                            //新增至畫面
+                            var messageDiv = PutImageOnChat(
+                                Config.UserName,
+                                NewMessageData.data[i].message,
+                                NewMessageData.data[i].time,
+                                false,
+                                0
+                            );
+                            $('.messageArea .inner2').append(messageDiv);
+                        }
+                        else
+                        {
+                            //新增至畫面
+                            var messageDiv = PutMessageOnChat(
+                                Config.UserName, 
+                                Autolinker.link(NewMessageData.data[i].message,{
+                                    stripPrefix:false,
+                                }), 
+                                NewMessageData.data[i].time, 
+                                false, 
+                                0
+                            );
+                            $('.messageArea .inner2').append(messageDiv);
+                        }
+
                         
     
                         //檢查是否是自己發送的
@@ -377,6 +446,38 @@ function MegaChat(NewConfig)
         var timeStr = '';
         if (moment().format('YYYY-MM-DD') != moment.unix(time).format('YYYY-MM-DD')) {
             timeStr += moment.unix(time).format('MM-DD')+' ';
+        }
+        timeStr += moment.unix(time).format('HH:mm');
+
+        var timeDiv = $('<div></div>').addClass('time').html(timeStr);
+        messageDiv.append(nameDiv, textDiv, timeDiv);
+
+        $('.messageArea .inner2').append(messageDiv);
+
+        return messageDiv;
+    }
+
+    //將圖片新增至畫面上
+    function PutImageOnChat(name, imageUrl, time, loading, systemCode) {
+        var messageDiv = $('<div></div>').addClass('message');
+
+        if (systemCode != 0) {
+            messageDiv.addClass('system');
+        }
+
+        var nameDiv = $('<div></div>').addClass('name');
+        var textDiv = $('<div></div>').addClass('text');
+        var textBodyDiv = $('<div></div>').addClass('body').html('<img src="' + imageUrl+'" />');
+        textDiv.append(textBodyDiv);
+
+        if (loading) {
+            var loadingDiv = $('<div></div>').addClass('loading');
+            textDiv.append(loadingDiv);
+        }
+
+        var timeStr = '';
+        if (moment().format('YYYY-MM-DD') != moment.unix(time).format('YYYY-MM-DD')) {
+            timeStr += moment.unix(time).format('MM-DD') + ' ';
         }
         timeStr += moment.unix(time).format('HH:mm');
 

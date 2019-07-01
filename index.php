@@ -31,6 +31,7 @@ if(count($UserData)>0)
 	<script src="js/moment.js"></script>
 	<script src="js/MegaChat.js"></script>
 	<script src="js/Autolinker.min.js"></script>
+	<!-- <script src="js/paste.js"></script> -->
 </head>
 <body>
 
@@ -324,12 +325,143 @@ $('.loginWrap form').on('submit',function(e){
 
 	$(window).bind('beforeunload', function () {
 		Chat.LeaveRoom();
-    });	
+	});	
+
+	/*window.addEventListener("paste", function(e){
+		// Handle the event
+		retrieveImageFromClipboardAsBlob(e, function(imageBlob){
+			// If there's an image, display it in the canvas
+			if(imageBlob){
+
+				var data = new FormData();
+				data.append('file', imageBlob);
+				
+				$.ajax({
+					url :  "server/upload.php",
+					type: 'POST',
+					data: data,
+					contentType: false,
+					processData: false,
+					dataType: 'json',
+					success: function(data) {
+						alert("boa!");
+						console.log(data);
+					},    
+					error: function() {
+						alert("not so boa!");
+					}
+				});
+			}
+		});
+	}, false);*/
 });
 
 // $('.messageArea .inner').on('scroll',function(){
 // 	console.log($('.messageArea .inner').scrollTop() + $('.messageArea').height(), $('.messageArea .inner2').height())
 
 // })
+
+
+/**
+ * This handler retrieves the images from the clipboard as a blob and returns it in a callback.
+ * 
+ * @see http://ourcodeworld.com/articles/read/491/how-to-retrieve-images-from-the-clipboard-with-javascript-in-the-browser
+ * @param pasteEvent 
+ * @param callback 
+ */
+function retrieveImageFromClipboardAsBlob(pasteEvent, callback){
+	if(pasteEvent.clipboardData == false){
+        if(typeof(callback) == "function"){
+            callback(undefined);
+        }
+    };
+
+    var items = pasteEvent.clipboardData.items;
+
+    if(items == undefined){
+        if(typeof(callback) == "function"){
+            callback(undefined);
+        }
+    };
+
+    for (var i = 0; i < items.length; i++) {
+        // Skip content if not image
+        if (items[i].type.indexOf("image") == -1) continue;
+        // Retrieve image on clipboard as blob
+        var blob = items[i].getAsFile();
+
+        if(typeof(callback) == "function"){
+            callback(blob);
+        }
+    }
+}
+
+/**
+ * This handler retrieves the images from the clipboard as a base64 string and returns it in a callback.
+ * 
+ * @param pasteEvent 
+ * @param callback 
+ */
+function retrieveImageFromClipboardAsBase64(pasteEvent, callback, imageFormat){
+	if(pasteEvent.clipboardData == false){
+        if(typeof(callback) == "function"){
+            callback(undefined);
+        }
+    };
+
+    var items = pasteEvent.clipboardData.items;
+
+    if(items == undefined){
+        if(typeof(callback) == "function"){
+            callback(undefined);
+        }
+    };
+
+    for (var i = 0; i < items.length; i++) {
+        // Skip content if not image
+        if (items[i].type.indexOf("image") == -1) continue;
+        // Retrieve image on clipboard as blob
+        var blob = items[i].getAsFile();
+
+        // Create an abstract canvas and get context
+        var mycanvas = document.createElement("canvas");
+        var ctx = mycanvas.getContext('2d');
+        
+        // Create an image
+        var img = new Image();
+
+        // Once the image loads, render the img on the canvas
+        img.onload = function(){
+			// Update dimensions of the canvas with the dimensions of the image
+
+			//縮放到最大600*400
+			var PerW = 600 / this.width;
+			var PerH = 400 / this.height;
+			var Per = Math.min(PerW,PerH);
+
+			if(Per>1)Per=1;
+
+            mycanvas.width = this.width *Per;
+            mycanvas.height = this.height *Per;
+
+            // Draw the image
+            ctx.drawImage(img, 0, 0, this.width*Per, this.height*Per);
+
+            // Execute callback with the base64 URI of the image
+            if(typeof(callback) == "function"){
+                callback(mycanvas.toDataURL(
+                    (imageFormat || "image/png")
+                ));
+            }
+        };
+
+        // Crossbrowser support for URL
+        var URLObj = window.URL || window.webkitURL;
+
+        // Creates a DOMString containing a URL representing the object given in the parameter
+        // namely the original Blob
+        img.src = URLObj.createObjectURL(blob);
+    }
+}
 
 </script>

@@ -294,6 +294,8 @@
           border-radius: 10px; }
           .chatWrap .chatArea .message .text .body a {
             text-decoration: underline; }
+          .chatWrap .chatArea .message .text .body img {
+            max-width: 100%; }
       .chatWrap .chatArea .message .time {
         font-size: 12px;
         opacity: 0.7;

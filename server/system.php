@@ -100,7 +100,7 @@ while(true)
     }
 
     //取得指定時間之後的訊息
-    $sql="SELECT `guid`,`message`,`system`,`time`,`microtime` FROM `message` WHERE `room`=:ROOM AND `microtime`>:LASTIME ORDER BY `microtime` ASC, `id` ASC ";
+    $sql="SELECT `guid`,`type`,`message`,`system`,`time`,`microtime` FROM `message` WHERE `room`=:ROOM AND `microtime`>:LASTIME ORDER BY `microtime` ASC, `id` ASC ";
     $st=$DBC->prepare($sql);
     $st->execute(array(
         'ROOM'=>$RoomID,
